@@ -6,7 +6,7 @@
 /*   By: aharder <aharder@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/05 15:13:29 by aharder           #+#    #+#             */
-/*   Updated: 2025/03/26 16:40:10 by aharder          ###   ########.fr       */
+/*   Updated: 2025/03/27 00:12:09 by aharder          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -81,11 +81,39 @@ void	routine(t_data *data)
 			printf("Thread [%ld] took right fork", tid);
 		}
 		table->time_ate++;
+		gettimeofday(&table->last_meal, NULL);
 		usleep(data->params.time_to_eat);
 		pthread_mutex_unlock(&table->fork);
 		printf("Thread [%ld] drop right fork", tid);
 		pthread_mutex_unlock(&table->previous->fork);
 		printf("Thread [%ld] drop left fork", tid);
+		usleep(data->params.time_to_sleep);
+	}
+}
+
+long	timeval_to_ms(struct timeval t)
+{
+	return ((t.tv_sec * 1000) + (t.tv_usec / 1000));
+}
+
+void	check_if_alive(t_data *data)
+{
+	t_philosophers	*table;
+	long			last_meal;
+	long			current_time;
+	struct timeval	t;
+	
+	table = data->philosophers;
+	while (1)
+	{
+		last_meal = timeval_to_ms(table->last_meal);
+		gettimeofday(&t, NULL);
+		current_time = timeval_to_ms(t);
+		if ((current_time - last_meal) >= data->params.time_to_die)
+		{
+			destroy_all_thread(table);
+			break;
+		}
 	}
 }
 void	init_philosophers(char *arg, t_philosophers *philosophers, t_params params)
@@ -97,7 +125,7 @@ void	init_philosophers(char *arg, t_philosophers *philosophers, t_params params)
 	while (i < ft_atoi(arg))
 	{
 		tmp = malloc(sizeof(t_philosophers));
-		tmp->status = 0;
+		tmp->id = i;
 		tmp->time_ate = 0;
 		gettimeofday(&tmp->last_meal, NULL);
 		tmp->next = NULL;
