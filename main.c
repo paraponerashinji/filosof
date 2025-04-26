@@ -6,13 +6,13 @@
 /*   By: aharder <aharder@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/05 15:13:29 by aharder           #+#    #+#             */
-/*   Updated: 2025/03/27 00:12:09 by aharder          ###   ########.fr       */
+/*   Updated: 2025/04/26 15:44:57 by aharder          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include <pthread.h>
 #include <sys/time.h>
-
+/*
 typedef struct s_philosophers
 {
 	pthread_t	thread_id;
@@ -140,10 +140,17 @@ void	init_philosophers(char *arg, t_philosophers *philosophers, t_params params)
 		}
 		i++;
 	}
-}
+}*/
+
+#include "stdio.h"
 
 int	main(int argc, char *argv[])
 {
+	(void)argc;
+	(void)argv;
+
+	printf("\e[38;2;1;1;1mTEST");
+	/*
 	t_params	params;
 	pthread_t	*philosophers;
 	int				num;
@@ -162,5 +169,5 @@ int	main(int argc, char *argv[])
 	{
 		pthread_join(philosophers[i], NULL);
 		i++;
-	}
+	}*/
 }
