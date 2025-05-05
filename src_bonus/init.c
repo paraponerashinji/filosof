@@ -6,7 +6,7 @@
 /*   By: aharder <aharder@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/03 22:31:02 by aharder           #+#    #+#             */
-/*   Updated: 2025/05/04 23:40:09 by aharder          ###   ########.fr       */
+/*   Updated: 2025/05/05 13:17:49 by aharder          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -49,23 +49,6 @@ void	init_color(t_params *params)
 	}
 }
 
-void	start_philo(t_params *params, int i)
-{
-	params->philo_pid[i] = fork();
-	if (params->philo_pid[i] == 0)
-	{
-		while (1)
-		{
-			pthread_create(&params->philo_lifeline[i], NULL, (void *)philo_lifeline, &params->philo_pid[i]);
-			struct timeval	t;
-			eating(params, i);
-			sleeping(params, i);
-			thinking(params, i);
-		}
-	}
-
-}
-
 void	create_philo_process(t_params *params)
 {
 	int		i;
@@ -74,6 +57,24 @@ void	create_philo_process(t_params *params)
 	while (i < params->number_of_philo)
 	{
 		routine(params, i);
+		i++;
+	}
+}
+
+void	init_time_ate(t_params *params)
+{
+	int		i;
+	char	*name;
+	char	*id;
+
+	i = 0;
+	while (i < params->number_of_philo)
+	{
+		id = ft_itoa(i);
+		name = ft_strjoin("/time_ate", id);
+		params->time_ate[i] = sem_open(name, O_CREAT | O_EXCL, 0644, params->number_to_eat);
+		free(id);
+		free(name);
 		i++;
 	}
 }
@@ -90,7 +91,8 @@ void	init_philo(t_params *params, int argc, char *argv[])
 		params->number_to_eat = ft_atoi(argv[5]);
 	else
 		params->number_to_eat = -1;
-	params->time_ate = sem_open("/time_ate", O_CREAT | O_EXCL, 0644, params->number_of_philo);
+	params->time_ate = malloc(sizeof(sem_t *) * params->number_of_philo);
+	init_time_ate(params);
 	params->color = malloc(sizeof(char *) * params->number_of_philo);
 	init_color(params);
 	params->philo_pid = malloc(sizeof(pid_t) * params->number_of_philo);
