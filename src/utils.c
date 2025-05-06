@@ -6,7 +6,7 @@
 /*   By: aharder <aharder@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/26 15:31:42 by aharder           #+#    #+#             */
-/*   Updated: 2025/05/02 18:48:49 by aharder          ###   ########.fr       */
+/*   Updated: 2025/05/06 22:48:06 by aharder          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,6 +15,35 @@
 long	timeval_to_ms(struct timeval t)
 {
 	return ((t.tv_sec * 1000) + (t.tv_usec / 1000));
+}
+
+typedef struct s_trylock
+{
+	pthread_mutex_t	*mutex;
+	int			i;
+}	t_trylock;
+
+void	*trylock(t_trylock *trylock)
+{
+	pthread_mutex_lock(trylock->mutex);
+	trylock->i = 1;
+	pthread_mutex_unlock(trylock->mutex);
+	return (NULL);
+}
+
+int	ft_trylock(pthread_mutex_t *mutex)
+{
+	pthread_t	thread_id;
+	t_trylock	strylock;
+
+	strylock.mutex = mutex;
+	strylock.i = 0;
+	pthread_create(&thread_id, NULL, (void *)trylock, &strylock);
+	usleep(100000);
+	pthread_detach(thread_id);
+	if (strylock.i == 1)
+		return (1);
+	return (0);
 }
 
 char	*ft_multistrjoin(int count, ...)

@@ -6,11 +6,32 @@
 /*   By: aharder <aharder@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/26 15:32:52 by aharder           #+#    #+#             */
-/*   Updated: 2025/05/02 23:32:34 by aharder          ###   ########.fr       */
+/*   Updated: 2025/05/06 23:41:55 by aharder          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../include/philosophers.h"
+
+int	has_all_philos_ate(t_philo *philo)
+{
+	int		i;
+	int		count;
+
+	count = 0;
+	i = 0;
+	pthread_mutex_lock(&philo->data->simulation_state);
+	while (i < philo->data->number_of_philo)
+	{
+		if (philo->time_ate >= philo->data->number_to_eat)
+			count++;
+		i++;
+		philo = philo->next;
+	}
+	pthread_mutex_unlock(&philo->data->simulation_state);
+	if (count == philo->data->number_of_philo)
+		return (1);
+	return (0);
+}
 
 void	customsleep(long start, long time)
 {
@@ -60,11 +81,18 @@ void	eating(t_philo *philo)
 	printf("%s[%ld] %d has taken a fork\n", philo->color, timeval_to_ms(t), philo->id);
 	gettimeofday(&philo->last_meal, NULL);
 	printf("%s[%ld] %d is eating\n", philo->color, timeval_to_ms(philo->last_meal),philo->id);
+	printf("%s[%ld] %d Time ate: %d\n", philo->color, timeval_to_ms(t), philo->id, philo->time_ate + 1);
+	philo->time_ate++;
 	pthread_mutex_unlock(&philo->data->simulation_state);
+	if (has_all_philos_ate(philo) == 1)
+	{
+		dropfork(philo);
+		return ;
+	}
+	customsleep(timeval_to_ms(t), timeval_to_ms(t) + philo->data->time_to_eat);
 	dropfork(philo);
 	gettimeofday(&t, NULL);
 	printf("%s[%ld] %d dropped forks\n", philo->color, timeval_to_ms(t), philo->id);
-	customsleep(timeval_to_ms(t), timeval_to_ms(t) + philo->data->time_to_eat);
 }
 void	sleeping(t_philo *philo)
 {
@@ -99,11 +127,16 @@ void	routine(t_philo *philo)
 	{
 		//gettimeofday(&start, NULL);
 		eating(philo);
+		if (philo->data->limited_eating != 0)
+		{
+			//printf("%s[%ld] %d time ate: %d\n", philo->color, timeval_to_ms(philo->last_meal), philo->id, philo->time_ate);
+			if (philo->time_ate >= philo->data->number_to_eat)
+			{
+				break ;
+			}
+		}
 		sleeping(philo);
 		thinking(philo);
-		//gettimeofday(&end, NULL);
-		//printf("%s%d loop time: %ld\n", philo->color, philo->id,
-		//	timeval_to_ms(end) - timeval_to_ms(start));
 	}
 }
 
@@ -119,9 +152,7 @@ void	end_simulation(t_philo *philo)
         i++;
         philo = philo->next;
     }
-	pthread_mutex_unlock(&philo->data->simulation_state);
-    pthread_mutex_destroy(&philo->data->simulation_state);
-	exit(0);
+	//exit(0);
 }
 
 void	destroy_all_other_lifeline(t_philo *philo)
@@ -138,6 +169,8 @@ void	destroy_all_other_lifeline(t_philo *philo)
 		i++;
 		philo = philo->next;
 	}
+	philo->data->simulation_end = 1;
+	pthread_mutex_unlock(&philo->data->simulation_state);
 }
 
 void	lifeline_routine(t_philo *philo)
@@ -146,9 +179,14 @@ void	lifeline_routine(t_philo *philo)
 	long			current_time;
 	long			last_meal;
 
-	while (1)
+	while (has_all_philos_ate(philo) == 0)
 	{
 		pthread_mutex_lock(&philo->data->simulation_state);
+		if (philo->data->simulation_end == 1)
+		{
+			pthread_mutex_unlock(&philo->data->simulation_state);
+			break ;
+		}
 		last_meal = timeval_to_ms(philo->last_meal);
 		pthread_mutex_unlock(&philo->data->simulation_state);
 		gettimeofday(&t, NULL);
@@ -156,16 +194,25 @@ void	lifeline_routine(t_philo *philo)
 		if ((current_time - last_meal) >= philo->data->time_to_die)
 		{
 			pthread_mutex_lock(&philo->data->simulation_state);
-			printf("%s%d is dead at %ld\n", philo->color, philo->id, current_time);
-			printf("Final last meal: %ld\n", last_meal);
-			printf("%s%d should died at %ld\n", philo->color, philo->id, last_meal + philo->data->time_to_die);
-			destroy_all_other_lifeline(philo);
+			/*
+			if (philo->time_ate >= philo->data->number_to_eat && has_all_philos_ate(philo) == 1)
+			{
+				pthread_mutex_unlock(&philo->data->simulation_state);
+				continue;
+			}*/
+			if (has_all_philos_ate(philo) == 0)
+			{
+				printf("%s%d is dead at %ld\n", philo->color, philo->id, current_time);
+				printf("Final last meal: %ld\n", last_meal);
+				printf("Count: %d\n", philo->time_ate);
+				printf("%s%d should died at %ld\n", philo->color, philo->id, last_meal + philo->data->time_to_die);
+			}
 			end_simulation(philo);
+			destroy_all_other_lifeline(philo);
 			break ;
 		}
 		usleep(100);
 	}
-	//pthread_mutex_unlock(&philo->data->simulation_state);
 	//pthread_mutex_destroy(&philo->data->simulation_state);
 }
 

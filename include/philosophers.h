@@ -6,7 +6,7 @@
 /*   By: aharder <aharder@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/25 13:40:54 by aharder           #+#    #+#             */
-/*   Updated: 2025/05/02 18:53:45 by aharder          ###   ########.fr       */
+/*   Updated: 2025/05/06 23:16:26 by aharder          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,7 +21,7 @@
 typedef struct s_philo
 {
 	int				id;
-	int				time_ate;
+	unsigned int				time_ate;
 	char			*color;
 	struct timeval	last_meal;
 	pthread_t		philo_thread;
