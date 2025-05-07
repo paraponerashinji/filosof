@@ -6,7 +6,7 @@
 /*   By: aharder <aharder@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/03 22:37:06 by aharder           #+#    #+#             */
-/*   Updated: 2025/05/05 13:25:42 by aharder          ###   ########.fr       */
+/*   Updated: 2025/05/07 11:29:46 by aharder          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -57,7 +57,8 @@ void	eating(t_params *philo, int id)
 	printf("%s[%ld] %d is eating\n", philo->color, timeval_to_ms(philo->last_meal), id);
 	sem_post(philo->simulation_state);
 	usleep(philo->time_to_eat * 1000);
-	sem_wait(philo->time_ate[id]);
+	if (philo->number_to_eat != -1)
+		sem_wait(philo->time_ate[id]);
 	dropfork(philo);
 }
 
@@ -73,6 +74,25 @@ void	end_simulation(t_params *philo)
 		i++;
 	}
 	exit(0);
+}
+
+void	has_all_eaten(t_params *philo)
+{
+	int	i;
+
+	i = 0;
+	while (i < philo->number_of_philo)
+	{
+		sem_wait(philo->time_ate[i]);
+		if (philo->number_to_eat != -1)
+			philo->number_to_eat--;
+		if (philo->number_to_eat == 0)
+		{
+			end_simulation(philo);
+			break ;
+		}
+		i++;
+	}
 }
 
 void	philo_lifeline(t_params *philo)

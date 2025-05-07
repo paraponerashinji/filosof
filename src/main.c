@@ -6,7 +6,7 @@
 /*   By: aharder <aharder@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/27 23:26:37 by aharder           #+#    #+#             */
-/*   Updated: 2025/05/02 18:58:16 by aharder          ###   ########.fr       */
+/*   Updated: 2025/05/07 19:02:28 by aharder          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -27,13 +27,13 @@ int	main(int argc, char *argv[])
 	init_philo(&philosophers, &params, argc, argv);
 	i = 0;
 	printf("Start at %ld\n", timeval_to_ms(params->start_simulation));
+	params->simulation_end = 0;
 	while (i < params->number_of_philo)
 	{
 		pthread_create(&philosophers->philo_thread, NULL, (void *)routine, philosophers);
 		i++;
 		philosophers = philosophers->next;
 	}
-	params->simulation_end = 0;
 	philo_lifeline(philosophers);
 	i = 0;
 	while (i < params->number_of_philo)

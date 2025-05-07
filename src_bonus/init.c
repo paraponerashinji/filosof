@@ -6,7 +6,7 @@
 /*   By: aharder <aharder@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/03 22:31:02 by aharder           #+#    #+#             */
-/*   Updated: 2025/05/05 13:17:49 by aharder          ###   ########.fr       */
+/*   Updated: 2025/05/07 11:52:57 by aharder          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,8 +21,12 @@ char	*generate_random_color(int id)
 	char	*red_str;
 	char	*green_str;
 	char	*blue_str;
+	long	seed;
+	struct timeval	t;
 
-	id++;
+	gettimeofday(&t, NULL);
+	seed = (t.tv_sec * 1000) + (t.tv_usec / 1000);
+	id += seed % 1000;
 	color_code = malloc(24 * sizeof(char));
 	red = (id * 53) % 256;
 	green = (id * 97) % 256;
