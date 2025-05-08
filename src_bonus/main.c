@@ -6,11 +6,16 @@
 /*   By: aharder <aharder@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/03 19:02:42 by aharder           #+#    #+#             */
-/*   Updated: 2025/05/05 13:17:36 by aharder          ###   ########.fr       */
+/*   Updated: 2025/05/08 23:43:23 by aharder          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../include/philo_bonus.h"
+
+long	timeval_to_ms(struct timeval t)
+{
+	return ((t.tv_sec * 1000) + (t.tv_usec / 1000));
+}
 
 int	main(int argc, char *argv[])
 {
@@ -25,7 +30,7 @@ int	main(int argc, char *argv[])
 	init_philo(&params, argc, argv);
 	i = 0;
 	printf("Start at %ld\n", timeval_to_ms(params.start_simulation));
-	create_philo_process(params);
+	create_philo_process(&params);
 	i = 0;
 	while (i < params.number_of_philo)
 	{

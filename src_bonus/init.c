@@ -6,11 +6,34 @@
 /*   By: aharder <aharder@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/03 22:31:02 by aharder           #+#    #+#             */
-/*   Updated: 2025/05/07 11:52:57 by aharder          ###   ########.fr       */
+/*   Updated: 2025/05/09 00:04:55 by aharder          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../include/philo_bonus.h"
+
+char	*ft_multistrjoin(int count, ...)
+{
+	va_list		args;
+	char		*result;
+	char		*buffer1;
+	int			i;
+
+	va_start(args, count);
+	i = 0;
+	result = malloc(1);
+	result[0] = '\0';
+	while (i < count)
+	{
+		buffer1 = result;
+		result = ft_strjoin(buffer1, va_arg(args, char *));
+		free(buffer1);
+		i++;
+	}
+	va_end(args);
+
+	return (result);
+}
 
 char	*generate_random_color(int id)
 {
@@ -27,7 +50,6 @@ char	*generate_random_color(int id)
 	gettimeofday(&t, NULL);
 	seed = (t.tv_sec * 1000) + (t.tv_usec / 1000);
 	id += seed % 1000;
-	color_code = malloc(24 * sizeof(char));
 	red = (id * 53) % 256;
 	green = (id * 97) % 256;
 	blue = (id * 193) % 256;
@@ -76,6 +98,7 @@ void	init_time_ate(t_params *params)
 	{
 		id = ft_itoa(i);
 		name = ft_strjoin("/time_ate", id);
+		sem_unlink(name);
 		params->time_ate[i] = sem_open(name, O_CREAT | O_EXCL, 0644, params->number_to_eat);
 		free(id);
 		free(name);
@@ -85,8 +108,6 @@ void	init_time_ate(t_params *params)
 
 void	init_philo(t_params *params, int argc, char *argv[])
 {
-	int		i;
-
 	params->number_of_philo = ft_atoi(argv[1]);
 	params->time_to_die = ft_atoi(argv[2]);
 	params->time_to_eat = ft_atoi(argv[3]);
@@ -100,8 +121,20 @@ void	init_philo(t_params *params, int argc, char *argv[])
 	params->color = malloc(sizeof(char *) * params->number_of_philo);
 	init_color(params);
 	params->philo_pid = malloc(sizeof(pid_t) * params->number_of_philo);
+	sem_unlink("/forks");
 	params->fork = sem_open("/forks", O_CREAT | O_EXCL, 0644, params->number_of_philo);
-	params->simulation_state = sem_open("/simulation_state", O_CREAT | O_EXCL, 0644, 1);
+if (params->fork == SEM_FAILED)
+{
+    perror("sem_open failed for forks");
+    exit(EXIT_FAILURE);
+}
+	sem_unlink("/simulation_state");
+params->simulation_state = sem_open("/simulation_state", O_CREAT | O_EXCL, 0644, 1);
+if (params->simulation_state == SEM_FAILED)
+{
+    perror("sem_open failed for simulation_state");
+    exit(EXIT_FAILURE);
+}
 	pthread_mutex_init(&params->death, NULL);
 	gettimeofday(&params->start_simulation, NULL);
 	gettimeofday(&params->last_meal, NULL);
