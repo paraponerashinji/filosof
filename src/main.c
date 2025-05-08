@@ -6,11 +6,36 @@
 /*   By: aharder <aharder@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/27 23:26:37 by aharder           #+#    #+#             */
-/*   Updated: 2025/05/07 19:02:28 by aharder          ###   ########.fr       */
+/*   Updated: 2025/05/08 23:03:13 by aharder          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../include/philosophers.h"
+
+void	free_philo(t_philo *philo)
+{
+	t_philo	*tmp;
+	int		i;
+	int		j;
+
+	i = philo->data->number_of_philo;
+	j = 0;
+	while (j < i)
+	{
+		j++;
+		tmp = philo;
+		philo = philo->next;
+		free(tmp->color);
+		pthread_mutex_destroy(&tmp->fork);
+		free(tmp);
+	}
+}
+
+void	free_params(t_params *params)
+{
+	pthread_mutex_destroy(&params->simulation_state);
+	free(params);
+}
 
 int	main(int argc, char *argv[])
 {
@@ -38,8 +63,10 @@ int	main(int argc, char *argv[])
 	i = 0;
 	while (i < params->number_of_philo)
 	{
-		//pthread_join(philosophers->philo_thread, NULL);
+		pthread_join(philosophers->philo_thread, NULL);
 		i++;
 		philosophers = philosophers->next;
 	}
+	free_philo(philosophers);
+	free_params(params);
 }

@@ -6,7 +6,7 @@
 /*   By: aharder <aharder@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/25 13:40:54 by aharder           #+#    #+#             */
-/*   Updated: 2025/05/06 23:16:26 by aharder          ###   ########.fr       */
+/*   Updated: 2025/05/08 22:48:51 by aharder          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -50,3 +50,5 @@ void	init_philo(t_philo **philo, t_params **config, int argc, char *argv[]);
 long	timeval_to_ms(struct timeval t);
 char	*generate_random_color(int id);
 void	philo_lifeline(void *arg);
+void	print_philo(t_philo *philo, char *message);
+int	simulation_on(t_philo *philo);

@@ -6,7 +6,7 @@
 /*   By: aharder <aharder@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/25 13:50:50 by aharder           #+#    #+#             */
-/*   Updated: 2025/05/02 18:45:14 by aharder          ###   ########.fr       */
+/*   Updated: 2025/05/08 23:00:25 by aharder          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -50,6 +50,7 @@ void	init_philo(t_philo **philo, t_params **config, int argc, char *argv[])
 		tmp->id = i;
 		tmp->color = generate_random_color(i);
 		tmp->last_meal = (*config)->start_simulation;
+		tmp->time_ate = 0;
 		pthread_mutex_init(&tmp->fork, NULL);
 		tmp->next = NULL;
 		tmp->previous = last;

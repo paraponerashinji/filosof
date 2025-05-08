@@ -4,7 +4,8 @@ CFLAGS = -Wall -Wextra -Werror -I$(LIBFTDIR) -ggdb
 SRCS=		src/main.c\
 			src/init.c\
 			src/simulation.c\
-			src/utils.c
+			src/utils.c\
+			src/print.c
 OBJS= $(SRCS:.c=.o)
 LIBFTDIR = libft
 LIBFT = $(LIBFTDIR)/libft.a
