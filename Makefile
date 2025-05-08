@@ -25,9 +25,11 @@ $(LIBFT):
 	$(CC) $(CFLAGS) $(LIBFT) -c $< -o $@
 clean:
 	rm -f $(OBJS)
+	rm -f $(OBJS_BONUS)
 	@make clean -C $(LIBFTDIR)
 fclean: clean
 	rm -f $(NAME)
+	rm -f $(NAME_BONUS)
 	@make fclean -C $(LIBFTDIR)
 bonus: $(NAME_BONUS)
 all: $(NAME)
