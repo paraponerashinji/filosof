@@ -6,7 +6,7 @@
 /*   By: aharder <aharder@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/27 23:26:37 by aharder           #+#    #+#             */
-/*   Updated: 2025/05/08 23:03:13 by aharder          ###   ########.fr       */
+/*   Updated: 2025/05/09 15:10:58 by aharder          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -37,25 +37,59 @@ void	free_params(t_params *params)
 	free(params);
 }
 
-int	main(int argc, char *argv[])
+int	str_is_num(char *str)
 {
-	t_philo	*philosophers;
-	t_params		*params;
-	int				i;
+	int	i;
 
+	i = 0;
+	while (i < ft_strlen(str))
+	{
+		if (ft_isalnum(str[i]) == 0)
+			return (1);
+		i++;
+	}
+	return (0);
+}
+
+void	print_error(int argc, char **argv)
+{
+	int	i;
+
+	i = 1;
 	if (argc < 5 || argc > 6)
 	{
-		printf("Usage: %s <number_of_philosophers> <time_to_die> <time_to_eat> <time_to_sleep> [number_of_times_each_philosopher_must_eat]\n", argv[0]);
-		return (1);
+		printf("Usage: %s <number_of_philosophers>", argv[0]);
+		printf(" <time_to_die> <time_to_eat> <time_to_sleep>");
+		printf(" [number_of_times_each_philosopher_must_eat]\n");
+		exit(1);
 	}
+	while (i < argc)
+	{
+		if (str_is_num(argv[i]) == 1)
+		{
+			printf("Usage: %s <number_of_philosophers>", argv[0]);
+			printf(" <time_to_die> <time_to_eat> <time_to_sleep>");
+			printf(" [number_of_times_each_philosopher_must_eat]\n");
+			exit(1);
+		}
+		i++;
+	}
+}
+
+int	main(int argc, char *argv[])
+{
+	t_philo		*philosophers;
+	t_params	*params;
+	int			i;
+
+	print_error(argc, argv);
 	philosophers = NULL;
 	init_philo(&philosophers, &params, argc, argv);
 	i = 0;
-	printf("Start at %ld\n", timeval_to_ms(params->start_simulation));
-	params->simulation_end = 0;
 	while (i < params->number_of_philo)
 	{
-		pthread_create(&philosophers->philo_thread, NULL, (void *)routine, philosophers);
+		pthread_create(&philosophers->philo_thread, NULL,
+			(void *)routine, philosophers);
 		i++;
 		philosophers = philosophers->next;
 	}

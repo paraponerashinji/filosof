@@ -6,7 +6,7 @@
 /*   By: aharder <aharder@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/25 13:50:50 by aharder           #+#    #+#             */
-/*   Updated: 2025/05/08 23:00:25 by aharder          ###   ########.fr       */
+/*   Updated: 2025/05/09 15:09:49 by aharder          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -35,11 +35,21 @@ t_params	*init_param(int argc, char *argv[])
 	return (params);
 }
 
+void	init_more(t_philo **tmp, t_params **config)
+{
+	(*tmp)->color = generate_random_color((*tmp)->id);
+	(*tmp)->last_meal = (*config)->start_simulation;
+	(*tmp)->time_ate = 0;
+	pthread_mutex_init(&(*tmp)->fork, NULL);
+	(*tmp)->next = NULL;
+	(*tmp)->data = *config;
+}
+
 void	init_philo(t_philo **philo, t_params **config, int argc, char *argv[])
 {
 	t_philo	*tmp;
 	t_philo	*last;
-	int				i;
+	int		i;
 
 	*config = init_param(argc, argv);
 	i = 0;
@@ -48,25 +58,18 @@ void	init_philo(t_philo **philo, t_params **config, int argc, char *argv[])
 	{
 		tmp = malloc(sizeof(t_philo));
 		tmp->id = i;
-		tmp->color = generate_random_color(i);
-		tmp->last_meal = (*config)->start_simulation;
-		tmp->time_ate = 0;
-		pthread_mutex_init(&tmp->fork, NULL);
-		tmp->next = NULL;
+		init_more(&tmp, config);
 		tmp->previous = last;
-		tmp->data = *config;
 		if (last)
 			last->next = tmp;
 		else
-		{
 			*philo = tmp;
-		}
 		last = tmp;
 		i++;
 	}
 	if (last && *philo)
-    {
-        last->next = *philo;
-        (*philo)->previous = last;
-    }
+	{
+		last->next = *philo;
+		(*philo)->previous = last;
+	}
 }

@@ -6,46 +6,34 @@
 /*   By: aharder <aharder@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/26 15:31:42 by aharder           #+#    #+#             */
-/*   Updated: 2025/05/08 23:04:07 by aharder          ###   ########.fr       */
+/*   Updated: 2025/05/09 14:52:12 by aharder          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../include/philosophers.h"
 
+void	thinking(t_philo *philo)
+{
+	struct timeval	t;
+
+	gettimeofday(&t, NULL);
+	print_philo(philo, "is thinking");
+}
+
+void	sleeping(t_philo *philo)
+{
+	struct timeval	t;
+
+	gettimeofday(&t, NULL);
+	print_philo(philo, "is sleeping");
+	usleep(philo->data->time_to_sleep * 1000);
+}
+
 long	timeval_to_ms(struct timeval t)
 {
 	return ((t.tv_sec * 1000) + (t.tv_usec / 1000));
 }
-
-typedef struct s_trylock
-{
-	pthread_mutex_t	*mutex;
-	int			i;
-}	t_trylock;
-
-void	*trylock(t_trylock *trylock)
-{
-	pthread_mutex_lock(trylock->mutex);
-	trylock->i = 1;
-	pthread_mutex_unlock(trylock->mutex);
-	return (NULL);
-}
-
-int	ft_trylock(pthread_mutex_t *mutex)
-{
-	pthread_t	thread_id;
-	t_trylock	strylock;
-
-	strylock.mutex = mutex;
-	strylock.i = 0;
-	pthread_create(&thread_id, NULL, (void *)trylock, &strylock);
-	usleep(100000);
-	pthread_detach(thread_id);
-	if (strylock.i == 1)
-		return (1);
-	return (0);
-}
-
+/*
 char	*ft_multistrjoin(int count, ...)
 {
 	va_list		args;
@@ -65,34 +53,34 @@ char	*ft_multistrjoin(int count, ...)
 		i++;
 	}
 	va_end(args);
-
 	return (result);
-}
+}*/
 
 char	*generate_random_color(int id)
 {
-	char	*color_code;
-	int		red;
-	int		green;
-	int		blue;
-	char	*red_str;
-	char	*green_str;
-	char	*blue_str;
-	long	seed;
-	struct timeval	t;
+	t_randomcolor	s;
+	char			*buffer;
 
-	gettimeofday(&t, NULL);
-	seed = (t.tv_sec * 1000) + (t.tv_usec / 1000);
-	id += seed % 1000;
-	red = (id * 53) % 256;
-	green = (id * 97) % 256;
-	blue = (id * 193) % 256;
-	red_str = ft_itoa(red);
-	green_str = ft_itoa(green);
-	blue_str = ft_itoa(blue);
-	color_code = ft_multistrjoin(7, "\033[38;2;", red_str, ";", green_str, ";", blue_str, "m");
-	free(red_str);
-	free(green_str);
-	free(blue_str);
-	return (color_code);
+	id += 1;
+	s.red = (id * 53) % 256;
+	s.green = (id * 97) % 256;
+	s.blue = (id * 193) % 256;
+	s.red_str = ft_itoa(s.red);
+	s.green_str = ft_itoa(s.green);
+	s.blue_str = ft_itoa(s.blue);
+	buffer = ft_strjoin("\033[38;2;", s.red_str);
+	s.color_code = ft_strjoin(buffer, ";");
+	free(buffer);
+	buffer = ft_strjoin(s.color_code, s.green_str);
+	free(s.color_code);
+	s.color_code = ft_strjoin(buffer, ";");
+	free(buffer);
+	buffer = ft_strjoin(s.color_code, s.blue_str);
+	free(s.color_code);
+	s.color_code = ft_strjoin(buffer, "m");
+	free(buffer);
+	free(s.red_str);
+	free(s.green_str);
+	free(s.blue_str);
+	return (s.color_code);
 }

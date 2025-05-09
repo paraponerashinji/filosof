@@ -6,7 +6,7 @@
 /*   By: aharder <aharder@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/03 19:03:17 by aharder           #+#    #+#             */
-/*   Updated: 2025/05/08 23:47:40 by aharder          ###   ########.fr       */
+/*   Updated: 2025/05/09 15:58:56 by aharder          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -31,7 +31,7 @@ typedef struct s_params
 	unsigned int	time_to_sleep;
 	int	number_to_eat;
 	int				number_of_philo;
-	sem_t			**time_ate;
+	pthread_mutex_t	meal;
 	struct timeval	last_meal;
 	char			**color;
 	pid_t			*philo_pid;
@@ -46,3 +46,9 @@ void	init_philo(t_params *params, int argc, char *argv[]);
 long	timeval_to_ms(struct timeval t);
 void	create_philo_process(t_params *params);
 void	routine(t_params *philo, int id);
+char	*ft_strjoin(char *dest, char *src);
+int		ft_atoi(const char *str);
+char	*ft_itoa(int n);
+char	*ft_strdup(char *src);
+int		ft_isalnum(char c);
+int		ft_strlen(const char *str);

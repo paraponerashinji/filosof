@@ -6,7 +6,7 @@
 /*   By: aharder <aharder@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/03 22:31:02 by aharder           #+#    #+#             */
-/*   Updated: 2025/05/09 00:04:55 by aharder          ###   ########.fr       */
+/*   Updated: 2025/05/09 16:05:15 by aharder          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -85,8 +85,14 @@ void	create_philo_process(t_params *params)
 		routine(params, i);
 		i++;
 	}
+	i = 0;
+	while (i < params->number_of_philo)
+	{
+		waitpid(params->philo_pid[i], NULL, 0);
+		i++;
+	}
 }
-
+/*
 void	init_time_ate(t_params *params)
 {
 	int		i;
@@ -104,7 +110,7 @@ void	init_time_ate(t_params *params)
 		free(name);
 		i++;
 	}
-}
+}*/
 
 void	init_philo(t_params *params, int argc, char *argv[])
 {
@@ -116,25 +122,26 @@ void	init_philo(t_params *params, int argc, char *argv[])
 		params->number_to_eat = ft_atoi(argv[5]);
 	else
 		params->number_to_eat = -1;
-	params->time_ate = malloc(sizeof(sem_t *) * params->number_of_philo);
-	init_time_ate(params);
+	//params->time_ate = malloc(sizeof(sem_t *) * params->number_of_philo);
+	//init_time_ate(params);
 	params->color = malloc(sizeof(char *) * params->number_of_philo);
 	init_color(params);
 	params->philo_pid = malloc(sizeof(pid_t) * params->number_of_philo);
 	sem_unlink("/forks");
 	params->fork = sem_open("/forks", O_CREAT | O_EXCL, 0644, params->number_of_philo);
-if (params->fork == SEM_FAILED)
-{
-    perror("sem_open failed for forks");
-    exit(EXIT_FAILURE);
-}
+	if (params->fork == SEM_FAILED)
+	{
+	    perror("sem_open failed for forks");
+	    exit(EXIT_FAILURE);
+	}
 	sem_unlink("/simulation_state");
-params->simulation_state = sem_open("/simulation_state", O_CREAT | O_EXCL, 0644, 1);
-if (params->simulation_state == SEM_FAILED)
-{
-    perror("sem_open failed for simulation_state");
-    exit(EXIT_FAILURE);
-}
+	params->simulation_state = sem_open("/simulation_state", O_CREAT | O_EXCL, 0644, 1);
+	if (params->simulation_state == SEM_FAILED)
+	{
+	    perror("sem_open failed for simulation_state");
+	    exit(EXIT_FAILURE);
+	}
+	pthread_mutex_init(&params->meal, NULL);
 	pthread_mutex_init(&params->death, NULL);
 	gettimeofday(&params->start_simulation, NULL);
 	gettimeofday(&params->last_meal, NULL);

@@ -6,7 +6,7 @@
 /*   By: aharder <aharder@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/03 22:37:06 by aharder           #+#    #+#             */
-/*   Updated: 2025/05/08 23:58:29 by aharder          ###   ########.fr       */
+/*   Updated: 2025/05/09 16:06:04 by aharder          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -35,6 +35,7 @@ void	philo_lifeline(t_params *philo)
 		{
 			sem_wait(philo->simulation_state);
 			printf("%s[%ld] %d is dead at %ld\n", philo->color[philo->id], current_time, philo->id, current_time);
+			//sem_post(philo->simulation_state);
 			end_simulation(philo);
 			break ;
 		}
@@ -75,6 +76,23 @@ void	sleeping(t_params *philo, int id)
 	usleep(philo->time_to_sleep * 1000);
 }
 
+int	has_eaten_enough(t_params *philo, int id)
+{
+	int	r;
+
+	r = 0;
+
+	(void)id;
+	//printf("%s[%ld] %d still have %d to eat\n", philo->color[philo->id], timeval_to_ms(philo->last_meal), id, philo->number_to_eat);
+	pthread_mutex_lock(&philo->meal);
+	if (philo->number_to_eat == -1)
+		r = 1;
+	if (philo->number_to_eat > 0)
+		r = 1;
+	pthread_mutex_unlock(&philo->meal);
+	return (r);
+}
+
 void	eating(t_params *philo, int id)
 {
 	struct timeval	t;
@@ -83,15 +101,22 @@ void	eating(t_params *philo, int id)
 	sem_wait(philo->simulation_state);
 	gettimeofday(&t, NULL);
 	printf("%s[%ld] %d has taken a fork\n", philo->color[philo->id], timeval_to_ms(t), id);
+	printf("%s[%ld] %d has taken a fork\n", philo->color[philo->id], timeval_to_ms(t), id);
 	gettimeofday(&philo->last_meal, NULL);
 	printf("%s[%ld] %d is eating\n", philo->color[philo->id], timeval_to_ms(philo->last_meal), id);
 	sem_post(philo->simulation_state);
 	usleep(philo->time_to_eat * 1000);
+	pthread_mutex_lock(&philo->meal);
 	if (philo->number_to_eat != -1)
-		sem_wait(philo->time_ate[id]);
+		philo->number_to_eat--;
+	pthread_mutex_unlock(&philo->meal);
 	dropfork(philo);
+	if (has_eaten_enough(philo, id) == 0)
+		return ;
+	gettimeofday(&t, NULL);
+	printf("%s[%ld] %d dropped forks\n", philo->color[philo->id], timeval_to_ms(t), id);
 }
-
+/*
 void	has_all_eaten(t_params *philo)
 {
 	int	i;
@@ -109,21 +134,33 @@ void	has_all_eaten(t_params *philo)
 		}
 		i++;
 	}
-}
+}*/
 
 void	routine(t_params *philo, int id)
 {
-	
+	printf("id: %d\n", id);
 	philo->philo_pid[id] = fork();
 	if (philo->philo_pid[id] == 0)
 	{
 		philo->id = id;
 		pthread_create(&philo->philo_lifeline, NULL, (void *)philo_lifeline, philo);
-		while (1)
+		while (has_eaten_enough(philo, id))
 		{
 			eating(philo, id);
 			sleeping(philo, id);
 			thinking(philo, id);
 		}
-	}
+		exit(0);
+	}/*
+	else
+	{
+		waitpid(philo->philo_pid[id], NULL, 0);
+		int i;
+		i = 0;
+		while (i < philo->number_of_philo)
+		{
+			//kill(philo->philo_pid[i], SIGQUIT);
+			i++;
+		}
+	}*/
 }
