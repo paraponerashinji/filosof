@@ -6,7 +6,7 @@
 /*   By: aharder <aharder@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/03 22:37:06 by aharder           #+#    #+#             */
-/*   Updated: 2025/05/09 16:06:04 by aharder          ###   ########.fr       */
+/*   Updated: 2025/05/11 23:55:32 by aharder          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -144,23 +144,15 @@ void	routine(t_params *philo, int id)
 	{
 		philo->id = id;
 		pthread_create(&philo->philo_lifeline, NULL, (void *)philo_lifeline, philo);
+		pthread_detach(philo->philo_lifeline);
 		while (has_eaten_enough(philo, id))
 		{
 			eating(philo, id);
 			sleeping(philo, id);
 			thinking(philo, id);
 		}
+		//printf("%s[%ld] meal count: %d\n", philo->color[philo->id], timeval_to_ms(philo->last_meal), philo->number_to_eat);
+		usleep(1000000);
 		exit(0);
-	}/*
-	else
-	{
-		waitpid(philo->philo_pid[id], NULL, 0);
-		int i;
-		i = 0;
-		while (i < philo->number_of_philo)
-		{
-			//kill(philo->philo_pid[i], SIGQUIT);
-			i++;
-		}
-	}*/
+	}
 }

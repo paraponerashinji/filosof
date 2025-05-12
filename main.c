@@ -6,7 +6,7 @@
 /*   By: aharder <aharder@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/05 15:13:29 by aharder           #+#    #+#             */
-/*   Updated: 2025/04/26 15:44:57 by aharder          ###   ########.fr       */
+/*   Updated: 2025/04/27 23:04:37 by aharder          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -143,31 +143,87 @@ void	init_philosophers(char *arg, t_philosophers *philosophers, t_params params)
 }*/
 
 #include "stdio.h"
+#include <stdlib.h>
+
+typedef struct s_philosopher
+{
+    int		id;
+    char	*color;
+}	t_philosopher;
+
+#include <stdio.h>
+#include <stdlib.h>
+
+char	*generate_random_color(int id)
+{
+    char	*color_code;
+    int		red;
+    int		green;
+    int		blue;
+
+    // Alloue de la mémoire pour stocker le code couleur
+    color_code = malloc(24 * sizeof(char));
+    if (!color_code)
+    {
+        fprintf(stderr, "Error: Failed to allocate memory for color\n");
+        return ("\033[0m"); // Retourne une couleur par défaut
+    }
+
+    // Génère des valeurs RGB pseudo-aléatoires basées sur l'ID
+    red = (id * 53) % 256;
+    green = (id * 97) % 256;
+    blue = (id * 193) % 256;
+
+    // Formate le code couleur ANSI
+    snprintf(color_code, 24, "\033[38;2;%d;%d;%dm", red, green, blue);
+
+    return (color_code);
+}
+
 
 int	main(int argc, char *argv[])
 {
-	(void)argc;
-	(void)argv;
+    int				num_philosophers;
+    t_philosopher	*philosophers;
+    int				i;
 
-	printf("\e[38;2;1;1;1mTEST");
-	/*
-	t_params	params;
-	pthread_t	*philosophers;
-	int				num;
-	int				i;
+    if (argc != 2)
+    {
+        printf("Usage: %s <number_of_philosophers>\n", argv[0]);
+        return (1);
+    }
 
-	i = 0;
-	num = ft_atoi(argv[1]);
-	philosophers = malloc((num + 1) * sizeof(pthread_t));
-	while (i < num)
-	{
-		pthread_create(philosophers[i], NULL, routine, NULL);
-		i++;
-	}
-	i = 0;
-	while (i < num)
-	{
-		pthread_join(philosophers[i], NULL);
-		i++;
-	}*/
+    // Récupère le nombre de philosophes
+    num_philosophers = atoi(argv[1]);
+    if (num_philosophers <= 0)
+    {
+        printf("Error: number_of_philosophers must be greater than 0\n");
+        return (1);
+    }
+
+    // Alloue de la mémoire pour les philosophes
+    philosophers = malloc(sizeof(t_philosopher) * num_philosophers);
+    if (!philosophers)
+    {
+        perror("Failed to allocate memory for philosophers");
+        return (1);
+    }
+
+    // Initialise les philosophes avec des couleurs aléatoires
+    for (i = 0; i < num_philosophers; i++)
+    {
+        philosophers[i].id = i;
+        philosophers[i].color = generate_random_color(i);
+    }
+
+    // Affiche les philosophes avec leurs couleurs
+    for (i = 0; i < num_philosophers; i++)
+    {
+        printf("%sPhilosopher %d\033[0m\n", philosophers[i].color, philosophers[i].id);
+    }
+
+    // Libère la mémoire
+    free(philosophers);
+
+    return (0);
 }

@@ -6,7 +6,7 @@
 /*   By: aharder <aharder@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/03 22:31:02 by aharder           #+#    #+#             */
-/*   Updated: 2025/05/09 16:05:15 by aharder          ###   ########.fr       */
+/*   Updated: 2025/05/11 22:57:20 by aharder          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -86,9 +86,10 @@ void	create_philo_process(t_params *params)
 		i++;
 	}
 	i = 0;
+	waitpid(-1, 0, 0);
 	while (i < params->number_of_philo)
 	{
-		waitpid(params->philo_pid[i], NULL, 0);
+		kill(params->philo_pid[i], SIGKILL);
 		i++;
 	}
 }
