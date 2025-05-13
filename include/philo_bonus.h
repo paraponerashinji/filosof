@@ -6,7 +6,7 @@
 /*   By: aharder <aharder@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/03 19:03:17 by aharder           #+#    #+#             */
-/*   Updated: 2025/05/09 15:58:56 by aharder          ###   ########.fr       */
+/*   Updated: 2025/05/13 12:15:16 by aharder          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -39,6 +39,7 @@ typedef struct s_params
 	pthread_t		philo_lifeline;
 	struct timeval	start_simulation;
 	sem_t			*fork;
+	sem_t			*table;
 	sem_t			*simulation_state;
 }	t_params;
 
@@ -52,3 +53,5 @@ char	*ft_itoa(int n);
 char	*ft_strdup(char *src);
 int		ft_isalnum(char c);
 int		ft_strlen(const char *str);
+void	print_philo(t_params *philo, char *msg);
+int	has_eaten_enough(t_params *philo, int id);

@@ -6,7 +6,7 @@
 /*   By: aharder <aharder@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/03 22:31:02 by aharder           #+#    #+#             */
-/*   Updated: 2025/05/11 22:57:20 by aharder          ###   ########.fr       */
+/*   Updated: 2025/05/13 12:11:47 by aharder          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -140,6 +140,13 @@ void	init_philo(t_params *params, int argc, char *argv[])
 	if (params->simulation_state == SEM_FAILED)
 	{
 	    perror("sem_open failed for simulation_state");
+	    exit(EXIT_FAILURE);
+	}
+	sem_unlink("/table");
+	params->table = sem_open("/table", O_CREAT | O_EXCL, 0644, 1);
+	if (params->table == SEM_FAILED)
+	{
+	    perror("sem_open failed for table");
 	    exit(EXIT_FAILURE);
 	}
 	pthread_mutex_init(&params->meal, NULL);
